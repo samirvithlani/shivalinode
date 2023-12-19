@@ -18,10 +18,24 @@ const userSchema = new Schema(
       type: Date,
       default: Date.now,
     },
+    status: {
+      type: Boolean,
+      default: true,
+    },
+    role: {
+      type: Schema.Types.ObjectId,
+      ref: "Role",
+    },
+    permissions: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Permission",
+      },
+    ],
   },
   {
     timestamps: true,
   }
 );
 
-module.exports =  mongoose.model("User", userSchema);
+module.exports = mongoose.model("User", userSchema);

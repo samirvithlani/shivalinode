@@ -1,5 +1,8 @@
 const router = require('express').Router();
-const userController = require('../controllers/UserController');
-
-router.post("/user", userController.createUser);
-module.exports = router;
+const userRoutes = require('./UserRoutes');
+const roleRoutes = require('./RoleRoutes');
+const permissionRoutes = require('./PermissionRoutes');
+router.use('/user',userRoutes);
+router.use('/role',roleRoutes);
+router.use('/permission',permissionRoutes);
+module.exports =  router;
