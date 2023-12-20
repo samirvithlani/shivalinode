@@ -13,6 +13,5 @@ const errorsType={
     NOT_ALLOWED: "NOT_ALLOWED",
     INTERNAL_SERVER_ERROR: "INTERNAL_SERVER_ERROR",
     BAD_REQUEST: "BAD_REQUEST",
-
 }
 module.exports = errorsType;    

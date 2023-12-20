@@ -1,0 +1,3 @@
+ManagerPermission
+prinicPermission --> [10,11]
+createGroup ofpermission: --> name :["",'"]
