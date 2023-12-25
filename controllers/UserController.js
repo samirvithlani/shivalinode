@@ -2,6 +2,7 @@ const userModel = require("../models/UserModel");
 const responseUtil = require("../utils/responseUtil");
 const errorTypes = require("../constants");
 const encryptionUtil = require("../utils/EncryptionUtil");
+const tokenUtil = require("../utils/TokenUtil");
 
 const createUser = async (req, res) => {
   const hasehdPassword = await encryptionUtil.encryptPassword(
@@ -156,31 +157,32 @@ const loginUser = async (req, res) => {
 
   try {
     const fetcheduserFromEmail = await userModel.findOne({ email: email });
-    //console.log(fetcheduserFromEmail);  
+    //console.log(fetcheduserFromEmail);
     if (fetcheduserFromEmail == undefined || fetcheduserFromEmail == null) {
       res.json(
         responseUtil.errorResponse(errorTypes.NOT_FOUND, "No user found")
       );
-    } 
-    else
-   {
+    } else {
       const isMatch = await encryptionUtil.comparePassword(
         password,
         fetcheduserFromEmail.password
       );
       console.log(isMatch);
+      
+      
 
-      if (isMatch) 
-      {
+      if (isMatch) {
+        //generate token
+
+        const token = tokenUtil.generateToken(fetcheduserFromEmail.toObject())
         res.json(
           responseUtil.succeessResponse(
             "POST",
-            fetcheduserFromEmail,
+            token,
             "User logged in successfully"
           )
         );
-      }
-       else {   
+      } else {
         res.json(
           responseUtil.errorResponse(
             errorTypes.BAD_REQUEST,
@@ -190,10 +192,38 @@ const loginUser = async (req, res) => {
       }
     }
   } catch (err) {
+    console.log("here....",err);
     res.json(responseUtil.errorResponse(errorTypes.INTERNAL_SERVER_ERROR, err));
   }
 };
 
+const getUserFromToken = async (req, res) => {
+
+  const token = req.headers.authorization
+  if(token==undefined || token==null){
+
+      res.json(responseUtil.errorResponse(errorTypes.NOT_AUTHORIZED,"Token not found"))
+
+  }
+  else{
+    try{
+      
+      const user = tokenUtil.verifyToken(token)
+      if(user){
+        res.json(responseUtil.succeessResponse("GET",user,"User fetched successfully"))
+      }
+      else{
+        res.json(responseUtil.errorResponse(errorTypes.NOT_AUTHORIZED,"Token is Not valid.."))
+      }
+
+    }
+    catch(err){
+      res.json(responseUtil.errorResponse(errorTypes.NOT_AUTHORIZED,err))
+    }
+  }
+
+
+}
 module.exports = {
   createUser,
   getUser,
@@ -201,4 +231,5 @@ module.exports = {
   softDeleteUser,
   removePermissionFromUser,
   loginUser,
+  getUserFromToken
 };
