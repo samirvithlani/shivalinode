@@ -1,9 +1,10 @@
 const multer = require("multer");
 const responseUtil = require("../utils/responseUtil");
 const errorTypes = require("../constants");
+const googleController = require("./GoogleController");
 
 const storage = multer.diskStorage({
-  destination: "./uploads",
+  // destination: "./uploads",
   filename: (req, file, cb) => {
     cb(null, file.originalname);
   },
@@ -30,17 +31,24 @@ const upload = multer({
   },
 }).single("file");
 
-const uploadFile = (req, res) => {
-  upload(req, res, (err) => {
+const uploadFile = async (req, res) => {
+  upload(req, res, async (err) => {
     if (err) {
       res.json(
         responseUtil.errorResponse(errorTypes.INTERNAL_SERVER_ERROR, err)
       );
     } else {
+      const id = await googleController.uploadFile(req.file.path);
+      const data = {
+        id: id,
+        name: req.file.originalname,
+
+      }
+
       res.json(
         responseUtil.succeessResponse(
           "POST",
-          req.file,
+          data,
           "File uploaded successfully"
         )
       );
